@@ -1,1 +1,90 @@
-# cde-llmops-catalyst
+## Overview
+
+This GitHub repository contains the source code and resources for building, training, and deploying machine learning models focusing on email classification and email name entities extraction, utilizing DistilBERT and Mistral-7B models. The project is designed to work seamlessly with AWS SageMaker, providing end-to-end solutions from data preparation to deployment.
+
+## Repository Structure
+```
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+├── api_load_tests
+├── build_deployment_configs.py
+├── copy_lambda_and_model_artifacts.py
+├── deploy_stack.py
+├── endpoint-config-template.yml
+├── evaluation_framework
+├── experiments
+├── future_enhancements
+├── lambda
+│   ├── inference_lambda_email_names.py
+│   └── inference_lambda_email_type.py
+├── model_configs.json
+├── project
+├── prod-eu-config.json
+├── prod-us-config.json
+├── setup.cfg
+├── setup.py
+├── staging-config.json
+└── tox.ini
+```
+
+### Key components
+
+- `.github`: Contains GitHub Actions scripts for CI/CD pipelines, automating the build and deployment of models.
+- `evaluation_framework`: Contains tools and scripts for evaluating machine learning models, including standardized procedures for metric calculation and result visualization.
+- `experiments`: Includes experimental setups and scripts for training different models (DistilBERT, Mistral-7b), alongside preprocessing and data handling scripts.
+- `lambda`: Contains AWS Lambda functions for handling API requests, integrating with API Gateway to process and respond to model inference calls.
+- `api-loadtest`: Contains all the load test scripts for endpoint invocation configured through locust.
+- `future enhancemnets`: Contains code and directories related to SageMaker Pipelines and model versioning through SageMaker Pipelines. This could be used as a reference for SageMaker pipeline design in this repository.
+
+## Prerequisites
+
+AWS SageMaker Studio IDE, IAM permissions for accessing SageMaker resources, S3 buckets, Lambda functions, and managing CloudWatch, Python 3.x environment with necessary libraries installed.
+
+### Key Modules and Libraries
+
+Before initiating the project, ensure the following packages are installed:
+    -boto3 for AWS SDK
+    -sagemaker Python SDK for interacting with SageMaker
+    -pandas, numpy for data manipulation
+    -transformers from Hugging Face for model implementations
+
+## Deploy your model
+
+This code repository demonstrates how you can organize your code for deploying an realtime inference Endpoint infrastructure. This code repository is created as part of creating a Project in SageMaker. 
+
+This code repository defines the CloudFormation template which defines the Endpoints as infrastructure. It also has configuration files associated with `StagingDeploy`,  `ProductionDeployUS` and `ProductionDeployEU` stages.
+
+Upon triggering a deployment, the GitHub Actions workflow will deploy three endpoints in the `StagingDeploy`, `ProductionDeployUS`, and `ProductionDeployEU` environments. 
+
+After the first deployment at `StagingDeploy` is completed, the GitHub Actions workflow waits for a manual approval step for promotion to the production stage.
+
+You own this code and you can modify this template to change as you need it, add additional tests for your custom validation. 
+
+A description of some of the artifacts is provided below:
+The GitHub Actions workflow to build and deploy Endpoints.
+
+```
+.github/workflows/deploy.yml
+```
+
+```
+model_configs.json
+```
+This JSON file contains code to retrieve the latest approved model S3 path and export staging and configuration files. It is invoked from the deploy stage. 
+
+Make sure to update the `DeploymentVersion` and the `model_data_url` for each deployment.
+
+Optionally, you can update the configuration for autoscaling for each model during the deployment.
+
+`endpoint-config-template.yml`
+ - this CloudFormation template file is packaged by the build step in the GitHub Actions workflow and is deployed in different stages.
+
+`staging-config.json`
+ - this configuration file is used to customize `staging` stage in the pipeline. You can configure the instance type, instance count here.
+`prod-us-config.json`
+ - this configuration file is used to customize `prod` stage in the pipeline. You can configure the instance type, instance count here.
+
+`prod-eu-config.json`
+ - this configuration file is used to customize `prod` stage in the pipeline. You can configure the instance type, instance count here.
+

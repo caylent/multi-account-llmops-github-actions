@@ -1,0 +1,310 @@
+Description:
+  This template is built and deployed by the infrastructure pipeline in various stages (staging/production) as required.
+  It specifies the resources that need to be created, like the SageMaker Endpoint.
+Parameters:
+  StageName:
+    Description: The name for a project pipeline stage, such as Staging or Prod, for which resources are provisioned and deployed.
+    Type: String
+    AllowedValues: 
+      - staging
+      - prod-us
+      - prod-eu
+
+  StackName:
+    Description: The use case for the model.
+    Type: String
+    AllowedValues: 
+      - email-type
+      - email-names
+
+  SageMakerProjectName:
+    Description: Name of the project
+    Type: String
+    MinLength: 1
+    MaxLength: 32
+    AllowedPattern: ^[a-zA-Z](-*[a-zA-Z0-9])*
+
+  DeploymentVersion:
+    Description: Deployment version
+    Type: String
+    MinLength: 1
+    MaxLength: 32
+    AllowedPattern: ^[a-zA-Z](-*[a-zA-Z0-9])*
+
+    
+  ModelDataUrl:
+    Description: URL of the model artifact in an S3 Bucket.
+    Type: String
+    
+  SageMakerImageUri:
+    Description: The URI of the Docker image that contains the model.
+    Type: String
+
+  ModelExecutionRoleArn:
+    Description: Execution role used for deploying the model.
+    Type: String
+
+  EndpointInstanceType:
+    Description: The ML compute instance type for the endpoint.
+    Type: String
+
+  EndpointInstanceCount:
+    Description: Number of instances to launch for the endpoint.
+    Type: Number
+    MinValue: 1
+
+  EndpointScalingTargetValue:
+    Description: Target value for the SageMakerVariantInvocationsPerInstance metric to scale based on.
+    Type: Number
+
+  EndpointScalingMinCapacity:
+    Description: Minimum value to scale in to.
+    Type: Number
+
+  EndpointScalingMaxCapacity:
+    Description: Maximum value to scale out to.
+    Type: Number
+
+  EndpointScaleInCooldown:
+    Description: Amount of time, in seconds, after a scale in activity completes before another scale in activity can start.
+    Type: Number
+
+  EndpointScaleOutCooldown:
+    Description: Amount of time, in seconds, after a scale out activity completes before another scale out activity can start.
+    Type: Number
+
+  ApiFunctionSourceCodeBucket:
+    Description: Name of the S3 Bucket where the Lambda Function's source code is stored
+    Type: String
+
+  ApiFunctionSourceCodeKey:
+    Description: Name of the Lambda Function's source code .zip stored in S3
+    Type: String
+
+  ApiFunctionHandler:
+    Description: Name of the Lambda Function's handler method
+    Type: String
+
+  ApiFunctionRuntime:
+    Description: Lambda Function's runtime
+    Type: String
+
+Conditions:
+  IsEmailNames: !Equals [ !Ref StackName, "email-names" ]
+
+Resources:
+  Model:
+    Description: Model resource in SageMaker
+    Type: AWS::SageMaker::Model
+    Properties:
+      ExecutionRoleArn: !Ref ModelExecutionRoleArn
+      ModelName: !Sub ${SageMakerProjectName}-model-${StageName}-${StackName}-${DeploymentVersion}
+      PrimaryContainer:
+        Image: !Ref SageMakerImageUri
+        ModelDataSource:
+          S3DataSource:
+            S3Uri: !Ref ModelDataUrl
+            S3DataType: S3Prefix
+            CompressionType: None
+        Environment:
+          !If 
+            - IsEmailNames
+            - { HF_MODEL_ID: "/opt/ml/model" } # For email-names model
+            - {} # For email-type model
+
+  EndpointConfig:
+    Description: Configuration for the model endpoint in SageMaker
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      EndpointConfigName: !Sub ${SageMakerProjectName}-${StageName}-${StackName}-${DeploymentVersion}
+      ProductionVariants:
+        - InitialInstanceCount: !Ref EndpointInstanceCount
+          InitialVariantWeight: 1.0
+          InstanceType: !Ref EndpointInstanceType
+          ModelName: !GetAtt Model.ModelName
+          VariantName: AllTraffic
+
+  Endpoint:
+    Description: Endpoint for the model in SageMaker
+    Type: AWS::SageMaker::Endpoint
+    Properties:
+      EndpointName: !Sub ${SageMakerProjectName}-${StageName}-${StackName}
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+
+  EndpointScalingTarget:
+    Description: Target for scaling the model endpoint
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn:
+      - Endpoint
+    Properties:
+      MaxCapacity: !Ref EndpointScalingMaxCapacity
+      MinCapacity: !Ref EndpointScalingMinCapacity
+      ResourceId: !Sub endpoint/${SageMakerProjectName}-${StageName}-${StackName}/variant/AllTraffic
+      RoleARN: !GetAtt EndpointScalingRole.Arn
+      ScalableDimension: sagemaker:variant:DesiredInstanceCount
+      ServiceNamespace: sagemaker
+      SuspendedState:
+        DynamicScalingInSuspended: false
+        DynamicScalingOutSuspended: false
+        ScheduledScalingSuspended: false
+      
+  EndpointScalingPolicy:
+    Description: Scaling policy for the model endpoint
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    DependsOn:
+      - EndpointScalingTarget
+    Properties:
+      PolicyName: !Sub ${SageMakerProjectName}-${StageName}-${StackName}-scaling-policy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref EndpointScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: SageMakerVariantInvocationsPerInstance
+        ScaleInCooldown: !Ref EndpointScaleInCooldown
+        ScaleOutCooldown: !Ref EndpointScaleOutCooldown
+        TargetValue: !Ref EndpointScalingTargetValue
+
+  EndpointScalingRole:
+    Description: IAM Role for scaling the model endpoint
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub sagemaker-endpoint-scaling-role-${StageName}-${StackName}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - application-autoscaling.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: SageMakerEndpointScaling
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: SageMakerAllowScaling
+                Effect: Allow
+                Action:
+                  - sagemaker:UpdateEndpointWeightsAndCapacities
+                Resource:
+                  - !GetAtt Endpoint.Arn
+                Effect: Allow
+                Action:
+                  - cloudwatch:DescribeAlarms
+                  - cloudwatch:GetMetricStatistics
+                  - cloudwatch:PutMetricAlarm
+                  - cloudwatch:DeleteAlarms
+                Resource: "*"
+
+  Api:
+    Description: REST API for the model
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub ${SageMakerProjectName}-${StageName}-${StackName}
+      Description: !Sub REST API for ${SageMakerProjectName} in the ${StageName} environment
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiRootMethod:
+    Description: Root method for the model's API
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref Api
+      ResourceId: !GetAtt Api.RootResourceId
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt ApiFunction.Arn
+
+  ApiDeployment:
+    Description: Deployment of the model's API
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ApiRootMethod
+    Properties:
+      RestApiId: !Ref Api
+      StageName: !Ref StageName
+      StageDescription:
+        LoggingLevel: INFO
+
+  ApiFunction:
+    Description: Lambda Function for the model API
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${SageMakerProjectName}-${StageName}-${StackName}-api
+      Description: !Sub Lambda Function for the API Gateway REST API ${SageMakerProjectName}-${StageName}-${StackName}
+      Code:
+        S3Bucket: !Ref ApiFunctionSourceCodeBucket
+        S3Key: !Ref ApiFunctionSourceCodeKey
+      Handler: !Ref ApiFunctionHandler
+      Runtime: !Ref ApiFunctionRuntime
+      Role: !GetAtt ApiFunctionRole.Arn
+      Timeout: !If [IsEmailNames, 30, 10]
+      MemorySize: !If [IsEmailNames, 1024, 128]
+      Environment:
+        Variables:
+          ENDPOINT_NAME: !GetAtt Endpoint.EndpointName
+      LoggingConfig:
+        ApplicationLogLevel: TRACE
+        SystemLogLevel: DEBUG
+        LogFormat: JSON
+
+  ApiFunctionPermission:
+    Description: Permission to invoke API model's Lambda Function from API Gateway
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ApiFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiId}/*/POST/
+        - apiId: !Ref Api
+
+  ApiFunctionRole:
+    Description: IAM Role for the model API's Lambda Function
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub lambda-execution-role-${StageName}-${StackName}-api
+      Description: Lambda execution role for ${StageName}-${StackName}-api
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SageMakerInvokeEndpoint
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: SageMakerAllowInvokeEndpoint
+                Effect: Allow
+                Action:
+                  - sagemaker:InvokeEndpoint
+                Resource:
+                  - !Ref Endpoint
+        - PolicyName: CloudWatchLogs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: CloudWatchAllowLogging
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub
+                      - arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${lambdaName}
+                      - lambdaName: !Sub ${SageMakerProjectName}-${StageName}-${StackName}-api
