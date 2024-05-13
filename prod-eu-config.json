@@ -1,0 +1,7 @@
+{
+  "Parameters": {
+    "StageName": "prod-eu",
+    "EndpointInstanceCount": "1",
+    "ApiFunctionRuntime": "python3.12"
+  }
+}

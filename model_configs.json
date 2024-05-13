@@ -1,0 +1,28 @@
+{
+    "email_type": {
+      "DeploymentVersion": "v2",
+      "model_name": "distilBert",
+      "model_id": "huggingface-tc-distilbert-base-multilingual-cased",
+      "model_version": "2.0.0",
+      "model_data_url": "s3://sagemaker-sigparser-caylent-mlops/model-artifacts/distilBERT/2024-04-26_23-06-31/distilbert-model-1/output/model/",
+      "instance_type": "ml.m5.xlarge",
+      "EndpointScalingTargetValue": "1000",
+      "EndpointScalingMinCapacity": "1",
+      "EndpointScalingMaxCapacity": "3",
+      "EndpointScaleInCooldown": "300",
+      "EndpointScaleOutCooldown": "300"
+    },
+    "email_names": {
+      "DeploymentVersion": "v1",
+      "model_name": "mistral-7b",
+      "model_id": "huggingface-llm-mistral-7b",
+      "model_version": "2.3.0",
+      "model_data_url": "s3://sagemaker-sigparser-caylent-mlops/model-artifacts/Mistral-7B/2024-04-08_18-48-25/hf-llm-mistral-7b-2024-04-08-18-50-53-623/output/model/",
+      "instance_type": "ml.g5.2xlarge",
+      "EndpointScalingTargetValue": "90.0",
+      "EndpointScalingMinCapacity": "1",
+      "EndpointScalingMaxCapacity": "3",
+      "EndpointScaleInCooldown": "300",
+      "EndpointScaleOutCooldown": "300"
+    }
+  }

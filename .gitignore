@@ -3,7 +3,9 @@ api_load_tests/data/outputs/*.json
 api_load_tests/data/outputs/*.txt
 api_load_tests/data/outputs/beta/email_names/*.html
 api_load_tests/data/outputs/beta/email_names/*.csv
+api_load_tests/data/outputs/beta/email_type/*.html
+api_load_tests/data/outputs/beta/email_type/*.csv
+api_load_tests/data/inputs/*.csv
 
-
-# data/outputs/*.csv
-# data/outputs/*.txt
+# Igonre all the jsonl files
+*.jsonl
