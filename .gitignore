@@ -1,0 +1,9 @@
+# Ignore JSON, CSV, and TXT files in the data/outputs directory
+api_load_tests/data/outputs/*.json
+api_load_tests/data/outputs/*.txt
+api_load_tests/data/outputs/beta/email_names/*.html
+api_load_tests/data/outputs/beta/email_names/*.csv
+
+
+# data/outputs/*.csv
+# data/outputs/*.txt
