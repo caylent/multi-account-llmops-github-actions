@@ -1,6 +1,18 @@
 ## Overview
 
-This GitHub repository contains the source code and resources for building, training, and deploying machine learning models focusing on email classification and email name entities extraction, utilizing DistilBERT and Mistral-7B models. The project is designed to work seamlessly with AWS SageMaker, providing end-to-end solutions from data preparation to deployment.
+This GitHub repository contains the source code and resources for  deploying DistilBERT and Mistral-7B models. The project is designed to work seamlessly with AWS SageMaker, providing end-to-end solutions from data preparation to deployment.
+
+## Toolchain
+
+- **Development Environment**: Amazon SageMaker Studio Notebooks
+- **Models**:
+  - **Classification usecase**: HuggingFace/DistilBERT
+  - **Entity Extraction usecase**: SageMaker Jumpstart/Mistral-7B
+- **Compute**: Amazon SageMaker Instances, AWS Lambda
+- **Infrastructure as Code (IaC)**: AWS CloudFormation
+- **Deployment**: GitHub Actions Workflows
+
+For more information on enabling CI/CD for multi-region Amazon SageMaker endpoints, please refer to the following AWS blog post: [Enable CI/CD of Multi-Region Amazon SageMaker Endpoints](https://aws.amazon.com/blogs/machine-learning/enable-ci-cd-of-multi-region-amazon-sagemaker-endpoints/)
 
 ## Repository Structure
 ```
@@ -30,8 +42,8 @@ This GitHub repository contains the source code and resources for building, trai
 
 - `.github`: Contains GitHub Actions scripts for CI/CD pipelines, automating the build and deployment of models.
 - `lambda`: Contains AWS Lambda functions for handling API requests, integrating with API Gateway to process and respond to model inference calls.
-- `utils`: Functions for evaluating the performance of your predictions.
-- `api-loadtest`: Contains all the load test scripts for endpoint invocation configured through locust.
+- `utils`: Functions for evaluating the performance of your predictions. Find more details [here](utils/README.md)
+- `api-loadtest`: Contains all the load test scripts for endpoint invocation configured through locust. Find more details [here](api_load_tests/README.md)
 
 ## Prerequisites
 
