@@ -30,7 +30,7 @@ This GitHub repository contains the source code and resources for  deploying Dis
 
 - `.github`: Contains GitHub Actions scripts for CI/CD pipelines, automating the build and deployment of models.
 - `lambda`: Contains AWS Lambda functions for handling API requests, integrating with API Gateway to process and respond to model inference calls.
-- `utils`: Functions for evaluating the performance of your predictions.
+- `utils`: Functions for evaluating the performance of your predictions. Find more details [here](utils/README.md)
 - `api-loadtest`: Contains all the load test scripts for endpoint invocation configured through locust.
 
 ## Prerequisites
