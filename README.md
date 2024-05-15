@@ -1,6 +1,6 @@
 ## Overview
 
-This GitHub repository contains the source code and resources for building, training, and deploying machine learning models focusing on email classification and email name entities extraction, utilizing DistilBERT and Mistral-7B models. The project is designed to work seamlessly with AWS SageMaker, providing end-to-end solutions from data preparation to deployment.
+This GitHub repository contains the source code and resources for  deploying DistilBERT and Mistral-7B models. The project is designed to work seamlessly with AWS SageMaker, providing end-to-end solutions from data preparation to deployment.
 
 ## Repository Structure
 ```
