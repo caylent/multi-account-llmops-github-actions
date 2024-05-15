@@ -12,14 +12,12 @@ This GitHub repository contains the source code and resources for building, trai
 ├── copy_lambda_and_model_artifacts.py
 ├── deploy_stack.py
 ├── endpoint-config-template.yml
-├── evaluation_framework
-├── experiments
-├── future_enhancements
 ├── lambda
 │   ├── inference_lambda_email_names.py
 │   └── inference_lambda_email_type.py
 ├── model_configs.json
 ├── project
+├── utils
 ├── prod-eu-config.json
 ├── prod-us-config.json
 ├── setup.cfg
@@ -31,11 +29,9 @@ This GitHub repository contains the source code and resources for building, trai
 ### Key components
 
 - `.github`: Contains GitHub Actions scripts for CI/CD pipelines, automating the build and deployment of models.
-- `evaluation_framework`: Contains tools and scripts for evaluating machine learning models, including standardized procedures for metric calculation and result visualization.
-- `experiments`: Includes experimental setups and scripts for training different models (DistilBERT, Mistral-7b), alongside preprocessing and data handling scripts.
 - `lambda`: Contains AWS Lambda functions for handling API requests, integrating with API Gateway to process and respond to model inference calls.
+- `utils`: Functions for evaluating the performance of your predictions.
 - `api-loadtest`: Contains all the load test scripts for endpoint invocation configured through locust.
-- `future enhancemnets`: Contains code and directories related to SageMaker Pipelines and model versioning through SageMaker Pipelines. This could be used as a reference for SageMaker pipeline design in this repository.
 
 ## Prerequisites
 

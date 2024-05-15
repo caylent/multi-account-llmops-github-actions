@@ -2,6 +2,9 @@
 
 ### This directory contains utility functions used throughout the project.
 
+The metrics.py file provides functions for evaluating the performance of your predictions. Here's an example of how to use the 
+compute_jaccard_score compute_sentence_bleu and compute_evaluation_metrics functions:
+
 ```
 import os
 from utils.metrics import compute_jaccard_score, compute_sentence_bleu, compute_evaluation_metrics
