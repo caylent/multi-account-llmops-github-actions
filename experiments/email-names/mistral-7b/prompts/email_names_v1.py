@@ -19,36 +19,35 @@ where 'xxx' should be replaced with the corresponding name component extracted f
 
 Here are a couple of examples that shows how to correctly extract the name components in a valid JSON format from 'Email Address' and 'Display Name' fields in the input.
 
-Input:
-{
-  "Email Address": "robertk@inertismedia.com",
-  "Display Name": "Robert Kalinski, MBA LCIS"
-}
-
-Output:
-
-{
-  "First Name": "Robert",
-  "Middle Name": "",
-  "Last Name": "Kalinski",
-  "Name Prefix": "",
-  "Name Suffix": "MBA LCIS"
-}
 
 Input:
 {
-  "Email Address": "scott_goodman@nomad-data.com"
-  "Display Name": "Goodman, Scott Howard"
+"Email Address": "david.brown@gmail.com",
+"Display Name": "David Robert Brown Jr.”
 }
 
 Output:
-
 {
-  "First Name": "Scott",
-  "Middle Name": "Howard",
-  "Last Name": "Goodman",
-  "Name Prefix": "",
-  "Name Suffix": ""
+"First Name": "David",
+"Middle Name": "Robert",
+"Last Name": "Brown",
+"Name Prefix": "",
+"Name Suffix": "Jr."
+}
+
+Input:
+{
+"Email Address": “emma.smith@gmail.com",
+"Display Name": "Dr. Emma Grace Smith III"
+}
+
+Output:
+{
+"First Name": "Emma",
+"Middle Name": "Grace",
+"Last Name": "Smith",
+"Name Prefix": "Dr.",
+"Name Suffix": "III"
 }
 
 '''
