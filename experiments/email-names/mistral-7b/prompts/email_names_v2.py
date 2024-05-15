@@ -23,52 +23,51 @@ The 'Display Name' field can include extra terms like business names, job codes,
 
 Here are three examples of how to correctly extract name components from an 'Email Address' and 'Display Name':
 
+
 Input:
 {
-  "Email Address": "robertk@inertismedia.com",
-  "Display Name": "Robert Kalinski (External)"
+  "Email Address": " john.doe@gmail.com,
+  "Display Name": “Dr. John Alex Doe Jr"
 }
 
 Output:
 
 {
-  "First Name": "Robert",
-  "Middle Name": "",
-  "Last Name": "Kalinski",
-  "Name Prefix": "",
-  "Name Suffix": ""
+  "First Name": “J”John,
+  "Middle Name": “Alex”,
+  "Last Name": “Doe”,
+  "Name Prefix": “Dr”,
+  "Name Suffix": “Jr”
 }
 
 Input:
 {
-  "Email Address": "sally.smith@localio.com",
-  "Display Name": "SMITH Sally M. - Localio Solutions"
+"Email Address": "david.brown@gmail.com",
+"Display Name": "David Robert Brown Jr.”
 }
 
 Output:
-
 {
-  "First Name": "Sally",
-  "Middle Name": "M.",
-  "Last Name": "Smith",
-  "Name Prefix": "",
-  "Name Suffix": ""
+"First Name": "David",
+"Middle Name": "Robert",
+"Last Name": "Brown",
+"Name Prefix": "",
+"Name Suffix": "Jr."
 }
 
 Input:
 {
-  "Email Address": "hrobertson9@pttl-firm.com",
-  "Display Name": "Dr. Harriet K. Robertson PhD"
+"Email Address": “emma.smith@gmail.com",
+"Display Name": "Dr. Emma Grace Smith III"
 }
 
 Output:
-
 {
-  "First Name": "Harriet",
-  "Middle Name": "K",
-  "Last Name": "Robertson",
-  "Name Prefix": “Dr.",
-  "Name Suffix": “PhD"
+"First Name": "Emma",
+"Middle Name": "Grace",
+"Last Name": "Smith",
+"Name Prefix": "Dr.",
+"Name Suffix": "III"
 }
 
 '''
