@@ -1,6 +1,6 @@
 {
     "BetaEmailTypeUser": {
-      "host": "https://a69acvlt1g.execute-api.us-west-2.amazonaws.com",
+      "host": "SOME_API_URL",
       "path": "/staging",
       "payload": {
         "email_address": "required",
@@ -9,7 +9,7 @@
       }
     },
     "BetaEmailNamesUser": {
-      "host": "https://y3mh7w1dd8.execute-api.us-west-2.amazonaws.com",
+      "host": "SOME_API_URL",
       "path": "/staging",
       "payload": {
         "email_address": "required",
@@ -17,7 +17,7 @@
       }
     },
     "ProdUSEmailTypeUser": {
-      "host": "https://sg2aym853e.execute-api.us-west-2.amazonaws.com",
+      "host": "SOME_API_URL",
       "path": "/prod-us",
       "payload": {
         "email_address": "required",
@@ -26,7 +26,7 @@
       }
     },
     "ProdUSEmailNamesUser": {
-      "host": "https://lvd2bbopg0.execute-api.us-west-2.amazonaws.com",
+      "host": "SOME_API_URL",
       "path": "/prod-us",
       "payload": {
         "email_address": "required",
@@ -34,7 +34,7 @@
       }
     },
     "ProdEUEmailTypeUser": {
-      "host": "https://gujniws3v5.execute-api.eu-central-1.amazonaws.com",
+      "host": "SOME_API_URL",
       "path": "/prod-eu",
       "payload": {
         "email_address": "required",
@@ -43,7 +43,7 @@
       }
     },
     "ProdEUEmailNamesUser": {
-      "host": "https://m8vzdz63w1.execute-api.eu-central-1.amazonaws.com",
+      "host": "SOME_API_URL",
       "path": "/prod-eu",
       "payload": {
         "email_address": "required",
